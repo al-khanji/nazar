@@ -53,7 +53,10 @@ QPixmap gradientPixmap(const QSize &s, const QGradient &g)
 
 int main(int argc, char *argv[])
 {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
+#endif
+
     QApplication a(argc, argv);
 
 #ifdef Q_OS_WIN
@@ -77,7 +80,10 @@ int main(int argc, char *argv[])
     QMenu trayMenu;
 
     tray.setIcon(icon);
-    trayMenu.addAction("Exit", &a, &QApplication::quit);
+    auto showAction = trayMenu.addAction("Show...");
+    QObject::connect(showAction, &QAction::triggered, &w, &QWidget::show);
+    auto exitAction = trayMenu.addAction("Exit");
+    QObject::connect(exitAction, &QAction::triggered, &a, &QApplication::quit);
     tray.setContextMenu(&trayMenu);
 
     w.show();
