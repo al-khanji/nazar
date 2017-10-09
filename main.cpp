@@ -1,5 +1,9 @@
 #include "nazar.h"
 
+#ifdef Q_OS_LINUX
+#include <unistd.h>
+#endif
+
 QRect centeredRect(const QPoint &pos, const QSize &size)
 {
     const auto topLeft = pos - QPoint(size.width() / 2, size.height() / 2);
@@ -53,17 +57,23 @@ QPixmap gradientPixmap(const QSize &s, const QGradient &g)
 
 int main(int argc, char *argv[])
 {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
-    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
+#ifdef Q_OS_LINUX
+    if (daemon(0, 0) == -1) {
+        perror("daemon");
+    }
 #endif
-
-    QApplication a(argc, argv);
 
 #ifdef Q_OS_WIN
     const int iconSize = 16;
 #else
     const int iconSize = 22;
 #endif
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
+#endif
+
+    QApplication a(argc, argv);
 
     QLinearGradient gradient(0, 0, iconSize, iconSize);
     gradient.setStops({
